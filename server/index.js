@@ -7,13 +7,16 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 5000;
-const JWT_SECRET = 'recipe_hub_super_secret_key_2026';
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'recipe_hub_super_secret_key_2026';
 
 // Middleware
 app.use(cors());
@@ -40,7 +43,7 @@ const recipeUpload = upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 
 
 // PostgreSQL connection
 const pool = new pg.Pool({
-  connectionString: "postgresql://neondb_owner:npg_NoCFf17Htpqd@ep-patient-pond-anl1ynno-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require",
+  connectionString: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_NoCFf17Htpqd@ep-patient-pond-anl1ynno-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require",
   ssl: { rejectUnauthorized: false }
 });
 
