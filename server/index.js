@@ -270,7 +270,9 @@ app.post('/api/recipes', authMiddleware, recipeUpload, async (req, res) => {
 app.get('/api/recipes', async (req, res) => {
   try {
     const { search, category, cuisine, page = 1, limit = 12 } = req.query;
-    let query = `SELECT r.*, u.name as author_name, u.profile_photo as author_photo 
+    let query = `SELECT r.*, 
+                 (SELECT COUNT(*) FROM recipe_views WHERE recipe_id = r.id) as views,
+                 u.name as author_name, u.profile_photo as author_photo 
                  FROM recipes r JOIN users u ON r.user_id = u.id WHERE 1=1`;
     let params = [];
     let paramIndex = 1;
@@ -334,7 +336,9 @@ app.get('/api/recipes/suggestions', async (req, res) => {
 app.get('/api/recipes/:id', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT r.*, u.name as author_name, u.profile_photo as author_photo, u.email as author_email
+      `SELECT r.*, 
+       (SELECT COUNT(*) FROM recipe_views WHERE recipe_id = r.id) as views,
+       u.name as author_name, u.profile_photo as author_photo, u.email as author_email
        FROM recipes r JOIN users u ON r.user_id = u.id WHERE r.id = $1`,
       [req.params.id]
     );
