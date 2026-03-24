@@ -51,7 +51,7 @@ export default function Register() {
         <h1><span className="sticker sticker-bounce">🧑‍🍳</span> Join RecipeHub</h1>
         <p className="auth-subtitle">Create your free account and start cooking!</p>
 
-        {error && <div className="auth-error">⚠️ {error}</div>}
+        {error && <div className="auth-error">⚠️ {typeof error === 'string' ? error : (error?.message || JSON.stringify(error))}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

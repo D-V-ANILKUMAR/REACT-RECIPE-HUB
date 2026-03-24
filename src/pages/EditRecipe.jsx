@@ -107,7 +107,7 @@ export default function EditRecipe() {
         <h1><span className="sticker sticker-bounce">✏️</span> Edit Recipe</h1>
         <p className="subtitle">Update your recipe details below</p>
 
-        {error && <div className="auth-error">⚠️ {error}</div>}
+        {error && <div className="auth-error">⚠️ {typeof error === 'string' ? error : (error?.message || JSON.stringify(error))}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

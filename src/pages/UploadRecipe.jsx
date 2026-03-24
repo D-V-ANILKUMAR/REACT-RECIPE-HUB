@@ -74,7 +74,7 @@ export default function UploadRecipe() {
         <h1><span className="sticker sticker-bounce">📤</span> Upload Recipe</h1>
         <p className="subtitle">Share your culinary masterpiece with the world! 🌍</p>
 
-        {error && <div className="auth-error">⚠️ {error}</div>}
+        {error && <div className="auth-error">⚠️ {typeof error === 'string' ? error : (error?.message || JSON.stringify(error))}</div>}
 
         <form onSubmit={handleSubmit}>
           {/* Thumbnail */}
