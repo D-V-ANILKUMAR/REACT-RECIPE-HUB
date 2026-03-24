@@ -35,6 +35,9 @@ export default function Navbar() {
           <Link to="/" className={`nav-link ${isActive('/')}`} onClick={() => setMobileOpen(false)}>
             <span className="sticker">🏠</span> Home
           </Link>
+          <Link to="/videos" className={`nav-link ${isActive('/videos')}`} onClick={() => setMobileOpen(false)}>
+            <span className="sticker">📺</span> Videos
+          </Link>
 
           {user ? (
             <>

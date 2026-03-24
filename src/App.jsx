@@ -11,6 +11,7 @@ import EditRecipe from './pages/EditRecipe'
 import RecipeDetail from './pages/RecipeDetail'
 import MyRecipes from './pages/MyRecipes'
 import AdminDashboard from './pages/AdminDashboard'
+import YouTubeVideos from './pages/YouTubeVideos'
 import './App.css'
 
 function PrivateRoute({ children }) {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
+          <Route path="/videos" element={<YouTubeVideos />} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/upload" element={<PrivateRoute><UploadRecipe /></PrivateRoute>} />

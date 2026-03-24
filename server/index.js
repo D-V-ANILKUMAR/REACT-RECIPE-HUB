@@ -270,7 +270,9 @@ app.post('/api/recipes', authMiddleware, recipeUpload, async (req, res) => {
     if (req.files?.thumbnail?.[0]) {
       thumbnailPath = '/uploads/' + req.files.thumbnail[0].filename;
     }
-    if (req.files?.video_file?.[0]) {
+    if (video_url && video_url.trim() !== '') {
+      videoFilePath = null;
+    } else if (req.files?.video_file?.[0]) {
       videoFilePath = '/uploads/' + req.files.video_file[0].filename;
     }
     const result = await pool.query(
@@ -402,10 +404,16 @@ app.put('/api/recipes/:id', authMiddleware, recipeUpload, async (req, res) => {
 
     let thumbnailPath = existing.rows[0].thumbnail;
     let videoFilePath = existing.rows[0].video_file;
+
     if (req.files?.thumbnail?.[0]) {
       thumbnailPath = '/uploads/' + req.files.thumbnail[0].filename;
     }
-    if (req.files?.video_file?.[0]) {
+
+    if (video_url && video_url.trim() !== '') {
+      // If YouTube URL is provided, clear the local video file
+      videoFilePath = null;
+    } else if (req.files?.video_file?.[0]) {
+      // If new video file is uploaded, use it (assumes video_url is cleared by frontend)
       videoFilePath = '/uploads/' + req.files.video_file[0].filename;
     }
 

@@ -167,6 +167,10 @@ export default function UploadRecipe() {
                 onClick={() => { setVideoSource('file'); setForm({...form, video_url: ''}) }}>
                 📁 Upload from Device
               </button>
+              <button type="button" className={`video-tab ${videoSource === 'youtube' ? 'active' : ''}`}
+                onClick={() => { setVideoSource('youtube'); setVideoFile(null); setVideoPreview(null) }}>
+                🔴 YouTube Link
+              </button>
             </div>
           </div>
 
@@ -187,6 +191,25 @@ export default function UploadRecipe() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* YouTube Video Link */}
+          {videoSource === 'youtube' && (
+            <div className="form-group fade-in">
+              <label><span className="sticker">🔗</span> YouTube Video URL</label>
+              <input 
+                type="url" 
+                name="video_url" 
+                className="form-input" 
+                placeholder="https://www.youtube.com/watch?v=..." 
+                value={form.video_url} 
+                onChange={handleChange} 
+                required
+              />
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                Paste the full URL from your browser address bar.
+              </p>
             </div>
           )}
 
