@@ -20,8 +20,17 @@ const JWT_SECRET = process.env.JWT_SECRET || "recipe_hub_super_secret_key_2026";
 
 // Middleware
 app.use(cors());
+// Explicitly handle body parsing for Vercel serverless environment
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use((req, res, next) => {
+  if (req.body && typeof req.body === 'string') {
+    try {
+      req.body = JSON.parse(req.body);
+    } catch (e) {}
+  }
+  next();
+});
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Create uploads directory (safe for serverless)
