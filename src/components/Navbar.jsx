@@ -61,7 +61,7 @@ export default function Navbar() {
                 {dropdownOpen && (
                   <div className="nav-dropdown">
                     <div className="nav-dropdown-header">
-                      <h4>{user.name}</h4>
+                    <h4>{typeof user?.name === 'string' ? user.name : 'Chefs'}</h4>
                       <p>{user.email}</p>
                       {user.role === 'admin' && <span className="nav-role-badge">Admin</span>}
                     </div>

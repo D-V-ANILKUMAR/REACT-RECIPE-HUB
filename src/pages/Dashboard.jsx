@@ -66,7 +66,7 @@ export default function Dashboard() {
     <div className="dashboard-page fade-in">
       <div className="dashboard-header">
         <h1><span className="sticker sticker-bounce">📊</span> Dashboard</h1>
-        <p>Welcome back, {user?.name}! Here's your recipe analytics 🍳</p>
+        <p>Welcome back, {typeof user?.name === 'string' ? user.name : 'Chef'}! Here's your recipe analytics 🍳</p>
       </div>
 
       {/* Stats Cards */}
