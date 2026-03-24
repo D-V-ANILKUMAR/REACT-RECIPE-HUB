@@ -48,7 +48,7 @@ export default function MyRecipes() {
         </Link>
       </div>
 
-      {recipes.length === 0 ? (
+      {recipes?.length === 0 ? (
         <div className="empty-state">
           <div className="sticker" style={{ fontSize: '4rem' }}>🍽️</div>
           <h3>No recipes yet!</h3>
@@ -74,7 +74,7 @@ export default function MyRecipes() {
               </tr>
             </thead>
             <tbody>
-              {recipes.map(recipe => (
+              {recipes?.map(recipe => (
                 <tr key={recipe.id}>
                   <td>
                     <img

@@ -102,9 +102,9 @@ export default function Home() {
           />
           <button type="submit" className="hero-search-btn">🔍</button>
 
-          {suggestions.length > 0 && (
+          {suggestions?.length > 0 && (
             <div className="search-suggestions">
-              {suggestions.map((s, i) => (
+              {suggestions?.map((s, i) => (
                 <button
                   key={i}
                   className="search-suggestion-item"
@@ -164,7 +164,7 @@ export default function Home() {
             <div className="spinner"></div>
             <p>Loading delicious recipes... 🍳</p>
           </div>
-        ) : recipes.length === 0 ? (
+        ) : recipes?.length === 0 ? (
           <div className="empty-state">
             <div className="sticker" style={{ fontSize: '4rem' }}>🍽️</div>
             <h3>No recipes found</h3>
@@ -178,7 +178,7 @@ export default function Home() {
         ) : (
           <>
             <div className="recipes-grid">
-              {recipes.map(recipe => (
+              {recipes?.map(recipe => (
                 <div
                   key={recipe.id}
                   className="recipe-card glow-on-hover"

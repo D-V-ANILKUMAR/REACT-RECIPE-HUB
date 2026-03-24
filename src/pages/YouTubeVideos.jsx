@@ -97,7 +97,7 @@ export default function YouTubeVideos() {
         </div>
       ) : (
         <div className="youtube-grid">
-          {videos.map((video, index) => (
+          {videos?.map((video, index) => (
             <div
               key={index}
               className="youtube-card glow-on-hover"
@@ -116,7 +116,7 @@ export default function YouTubeVideos() {
         </div>
       )}
 
-      {videos.length === 0 && !loading && (
+      {videos?.length === 0 && !loading && (
         <div className="empty-state">
           <div className="sticker" style={{ fontSize: '4rem' }}>📺</div>
           <h3>No videos found</h3>

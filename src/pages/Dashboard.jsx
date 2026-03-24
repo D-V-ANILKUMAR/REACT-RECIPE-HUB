@@ -126,7 +126,7 @@ export default function Dashboard() {
           <h3><span className="sticker">🕐</span> Recent Recipes</h3>
           {stats?.recentRecipes?.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {stats.recentRecipes.map(recipe => (
+              {stats.recentRecipes?.map(recipe => (
                 <div key={recipe.id} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '10px', borderRadius: '8px', border: '1px solid var(--border)',

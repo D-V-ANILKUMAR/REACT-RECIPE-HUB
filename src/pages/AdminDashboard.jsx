@@ -114,10 +114,10 @@ export default function AdminDashboard() {
           📊 Overview
         </button>
         <button className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
-          👥 Users ({users.length})
+          👥 Users ({users?.length || 0})
         </button>
         <button className={`admin-tab ${activeTab === 'recipes' ? 'active' : ''}`} onClick={() => setActiveTab('recipes')}>
-          🍳 Recipes ({recipes.length})
+          🍳 Recipes ({recipes?.length || 0})
         </button>
       </div>
 
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
       {/* Users Tab */}
       {activeTab === 'users' && (
         <div className="users-list">
-          {users.map(u => (
+          {users?.map(u => (
             <div key={u.id} className="admin-user-card">
               <div className="admin-user-info">
                 {u.profile_photo ? (
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {recipes.map(recipe => (
+              {recipes?.map(recipe => (
                 <tr key={recipe.id}>
                   <td>
                     <img
