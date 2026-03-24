@@ -16,6 +16,11 @@ export default function RecipeDetail() {
       try {
         const res = await API.get(`/recipes/${id}`)
         setRecipe(res.data)
+        
+        // Record unique view if user is logged in
+        if (localStorage.getItem('token')) {
+          await API.post(`/recipes/${id}/view`).catch(() => {});
+        }
       } catch (err) {
         console.error(err)
       } finally {
@@ -37,6 +42,12 @@ export default function RecipeDetail() {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  const handleShare = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    alert('Recipe link copied to clipboard! 📋');
   }
 
   const getYouTubeEmbedUrl = (url) => {
@@ -89,6 +100,11 @@ export default function RecipeDetail() {
           <div className="sticker">{liked ? '❤️' : '🤍'}</div>
           <h4>{recipe.likes || 0}</h4>
           <p>Likes</p>
+        </div>
+        <div className="recipe-info-card" onClick={handleShare} style={{ cursor: 'pointer' }}>
+          <div className="sticker">🔗</div>
+          <h4>Share</h4>
+          <p>Invite friends</p>
         </div>
       </div>
 

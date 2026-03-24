@@ -104,6 +104,16 @@ async function initDB() {
       );
     `);
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS recipe_views (
+        id SERIAL PRIMARY KEY,
+        recipe_id INTEGER REFERENCES recipes(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(recipe_id, user_id)
+      );
+    `);
+
     // Create default admin account
     const adminCheck = await client.query("SELECT * FROM users WHERE email = 'admin@recipehub.com'");
     if (adminCheck.rows.length === 0) {
@@ -323,8 +333,6 @@ app.get('/api/recipes/suggestions', async (req, res) => {
 // Get single recipe
 app.get('/api/recipes/:id', async (req, res) => {
   try {
-    // Increment view count
-    await pool.query('UPDATE recipes SET views = views + 1 WHERE id = $1', [req.params.id]);
     const result = await pool.query(
       `SELECT r.*, u.name as author_name, u.profile_photo as author_photo, u.email as author_email
        FROM recipes r JOIN users u ON r.user_id = u.id WHERE r.id = $1`,
@@ -332,6 +340,27 @@ app.get('/api/recipes/:id', async (req, res) => {
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Recipe not found' });
     res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Record unique view
+app.post('/api/recipes/:id/view', authMiddleware, async (req, res) => {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+
+    // Check if viewed before
+    const check = await pool.query('SELECT * FROM recipe_views WHERE recipe_id=$1 AND user_id=$2', [recipeId, userId]);
+    
+    if (check.rows.length === 0) {
+      await pool.query('INSERT INTO recipe_views (recipe_id, user_id) VALUES ($1, $2)', [recipeId, userId]);
+      await pool.query('UPDATE recipes SET views = views + 1 WHERE id = $1', [recipeId]);
+      return res.json({ viewed: true, message: 'Unique view recorded' });
+    }
+    
+    res.json({ viewed: false, message: 'Already viewed' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

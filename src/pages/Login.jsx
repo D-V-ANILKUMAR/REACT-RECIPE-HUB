@@ -66,9 +66,9 @@ export default function Login() {
           Don't have an account? <Link to="/register">Create one ✨</Link>
         </p>
 
-        <div style={{ marginTop: '1.5rem', padding: '12px', background: 'rgba(255,107,53,0.08)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+        {/* <div style={{ marginTop: '1.5rem', padding: '12px', background: 'rgba(255,107,53,0.08)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
           <strong>👑 Admin Login:</strong> admin@recipehub.com / admin123
-        </div>
+        </div> */}
       </div>
     </div>
   )
