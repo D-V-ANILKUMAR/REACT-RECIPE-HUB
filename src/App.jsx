@@ -10,7 +10,6 @@ import UploadRecipe from './pages/UploadRecipe'
 import EditRecipe from './pages/EditRecipe'
 import RecipeDetail from './pages/RecipeDetail'
 import MyRecipes from './pages/MyRecipes'
-import YouTubeVideos from './pages/YouTubeVideos'
 import AdminDashboard from './pages/AdminDashboard'
 import './App.css'
 
@@ -36,7 +35,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
-          <Route path="/youtube" element={<YouTubeVideos />} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/upload" element={<PrivateRoute><UploadRecipe /></PrivateRoute>} />

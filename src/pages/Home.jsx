@@ -16,8 +16,6 @@ const categories = [
   { name: 'Mexican', icon: '🌮' },
 ]
 
-const ytQuickTags = ['Biryani', 'Pasta', 'Pizza', 'Cake', 'Dosa', 'Sushi', 'Burger', 'Curry', 'Ramen', 'Tacos', 'Noodles', 'Salad']
-
 export default function Home() {
   const [recipes, setRecipes] = useState([])
   const [search, setSearch] = useState('')
@@ -27,19 +25,6 @@ export default function Home() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const navigate = useNavigate()
-
-  // YouTube videos state
-  const [ytVideos, setYtVideos] = useState([])
-  const [ytSearch, setYtSearch] = useState('cooking recipe')
-  const [ytLoading, setYtLoading] = useState(true)
-  const [selectedYtVideo, setSelectedYtVideo] = useState(null)
-
-  const handleYtVideoClick = (video) => {
-    setSelectedYtVideo(video)
-    setTimeout(() => {
-      document.getElementById('yt-player-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 100)
-  }
 
   const fetchRecipes = useCallback(async () => {
     setLoading(true)
@@ -57,25 +42,9 @@ export default function Home() {
     }
   }, [search, category, page])
 
-  const fetchYtVideos = useCallback(async (query) => {
-    setYtLoading(true)
-    try {
-      const res = await API.get('/youtube/search', { params: { q: query } })
-      setYtVideos(res.data.items || [])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setYtLoading(false)
-    }
-  }, [])
-
   useEffect(() => {
     fetchRecipes()
   }, [fetchRecipes])
-
-  useEffect(() => {
-    fetchYtVideos(ytSearch)
-  }, [])
 
   const handleSearchInput = async (e) => {
     const val = e.target.value
@@ -278,82 +247,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* ============= YOUTUBE FOOD VIDEOS SECTION ============= */}
-      <section className="section" style={{ borderTop: '1px solid var(--border)', paddingTop: '3rem' }}>
-        <div className="section-header">
-          <h2 className="section-title">
-            <span className="sticker sticker-bounce">📺</span> Trending Food Videos
-          </h2>
-          <Link to="/youtube">
-            <button className="nav-btn-primary">
-              See All Videos →
-            </button>
-          </Link>
-        </div>
-
-        {/* Quick Tags */}
-        <div className="category-filters" style={{ marginBottom: '1.5rem' }}>
-          {ytQuickTags.map(tag => (
-            <button
-              key={tag}
-              className={`category-chip ${ytSearch === tag ? 'active' : ''}`}
-              onClick={() => { setYtSearch(tag); fetchYtVideos(tag); setSelectedYtVideo(null); }}
-            >
-              🍴 {tag}
-            </button>
-          ))}
-        </div>
-
-        {/* Selected Video Player */}
-        {selectedYtVideo && (
-          <div id="yt-player-container" className="recipe-section" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>▶️</span> Now Playing
-              </h3>
-              <button className="btn-icon" onClick={() => setSelectedYtVideo(null)}>✕</button>
-            </div>
-            <iframe
-              style={{ width: '100%', aspectRatio: '16/9', borderRadius: 'var(--radius-lg)', border: 'none', marginTop: '1rem' }}
-              src={`https://www.youtube.com/embed/${typeof selectedYtVideo.id === 'string' ? selectedYtVideo.id : selectedYtVideo.id?.videoId}?rel=0&origin=${window.location.origin}`}
-              title={selectedYtVideo.snippet?.title}
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-            <h3 style={{ marginTop: '1rem', fontSize: '1.05rem' }}>{selectedYtVideo.snippet?.title}</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '4px' }}>
-              📺 {selectedYtVideo.snippet?.channelTitle}
-            </p>
-          </div>
-        )}
-
-        {/* Video Grid */}
-        {ytLoading ? (
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading food videos... 📺</p>
-          </div>
-        ) : (
-          <div className="youtube-grid">
-            {ytVideos.slice(0, 6).map((video, index) => (
-              <div
-                key={index}
-                className="youtube-card glow-on-hover"
-                onClick={() => handleYtVideoClick(video)}
-              >
-                <img
-                  src={video.snippet?.thumbnails?.high?.url || video.snippet?.thumbnails?.default?.url}
-                  alt={video.snippet?.title}
-                />
-                <div className="youtube-card-body">
-                  <h3>{video.snippet?.title}</h3>
-                  <p>📺 {video.snippet?.channelTitle}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   )
 }
