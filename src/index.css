@@ -1913,8 +1913,11 @@ input, textarea, select, button {
   .hero-stats {
     gap: 1.5rem;
   }
+  .auth-page {
+    padding: 1rem;
+  }
   .auth-card {
-    padding: 2rem;
+    padding: 1.5rem;
   }
   .form-row {
     grid-template-columns: 1fr;
