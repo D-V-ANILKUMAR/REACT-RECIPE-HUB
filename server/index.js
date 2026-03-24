@@ -177,19 +177,33 @@ app.post('/api/auth/register', async (req, res) => {
 
 // Login
 app.post('/api/auth/login', async (req, res) => {
+  console.log(`📡 Login attempt for: ${req.body?.email}`);
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      console.log('❌ Login failed: Missing email or password');
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (result.rows.length === 0) return res.status(400).json({ error: 'Invalid credentials' });
+    if (result.rows.length === 0) {
+      console.log(`❌ Login failed: User ${email} not found`);
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
     const user = result.rows[0];
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!valid) {
+      console.log(`❌ Login failed: Invalid password for ${email}`);
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
+    console.log(`✅ Login successful for: ${email}`);
     res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role }, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('❌ Login error:', err.message);
+    res.status(500).json({ error: 'Internal server error. Database might be down.' });
   }
 });
 
