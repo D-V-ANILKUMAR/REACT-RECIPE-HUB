@@ -206,8 +206,8 @@ app.post('/api/auth/login', async (req, res) => {
     console.log(`✅ Login successful for: ${email}`);
     res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role }, token });
   } catch (err) {
-    console.error('❌ Login error:', err.message);
-    res.status(500).json({ error: 'Internal server error. Database might be down.' });
+    console.error('❌ Login error:', err);
+    res.status(500).json({ error: `Server Diagnostic: ${err.message}` });
   }
 });
 
