@@ -1,8 +1,11 @@
 import axios from 'axios';
 
 // Environment-aware backend URL
-// Default to relative path in production, and localhost in development
-export const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000');
+// Safest fallback is window.location.origin to ensure mobile hits the same domain
+export const BASE_URL = import.meta.env.VITE_API_URL || 
+                        (import.meta.env.PROD || process.env.NODE_ENV === 'production' 
+                          ? window.location.origin 
+                          : 'http://localhost:5000');
 
 const API = axios.create({ 
   baseURL: `${BASE_URL}/api` 
