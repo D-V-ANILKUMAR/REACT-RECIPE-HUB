@@ -173,7 +173,7 @@ export default function AdminDashboard() {
             {/* Top Recipes */}
             <div className="dashboard-card">
               <h3><span className="sticker">🏆</span> Top Recipes</h3>
-              {stats?.topRecipes?.slice(0, 5).map(recipe => (
+              {stats?.topRecipes?.slice(0, 5)?.map(recipe => (
                 <div key={recipe.id} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '8px 0', borderBottom: '1px solid var(--border)'
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
             {/* Recent Users */}
             <div className="dashboard-card">
               <h3><span className="sticker">🆕</span> Recent Users</h3>
-              {stats?.recentUsers?.slice(0, 5).map(user => (
+              {stats?.recentUsers?.slice(0, 5)?.map(user => (
                 <div key={user.id} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '8px 0', borderBottom: '1px solid var(--border)'
