@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 
 export default function RecipeDetail() {
   const { id } = useParams()
@@ -66,7 +66,7 @@ export default function RecipeDetail() {
       {/* Hero Section */}
       <div className="recipe-detail-hero">
         <img
-          src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/900/400`}
+          src={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/900/400`}
           alt={recipe.title}
         />
         <div className="recipe-detail-overlay">
@@ -78,7 +78,7 @@ export default function RecipeDetail() {
           <h1>{recipe.title}</h1>
           <div className="recipe-author-compact">
             <img
-              src={recipe.author_photo ? `http://localhost:5000${recipe.author_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(recipe.author_name)}&background=6c5ce7&color=fff&size=30`}
+              src={recipe.author_photo ? `${BASE_URL}${recipe.author_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(recipe.author_name)}&background=6c5ce7&color=fff&size=30`}
               alt={recipe.author_name}
             />
             <span>{recipe.author_name} • {new Date(recipe.created_at).toLocaleDateString()}</span>
@@ -130,9 +130,9 @@ export default function RecipeDetail() {
                 <video
                   controls
                   className="recipe-main-video"
-                  poster={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : undefined}
+                  poster={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : undefined}
                 >
-                  <source src={`http://localhost:5000${recipe.video_file}`} />
+                  <source src={`${BASE_URL}${recipe.video_file}`} />
                   Your browser does not support the video tag.
                 </video>
               ) : (

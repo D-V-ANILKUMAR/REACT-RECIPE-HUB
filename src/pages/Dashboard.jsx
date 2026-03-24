@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 import { Bar, Doughnut } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js'
 
@@ -134,7 +134,7 @@ export default function Dashboard() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <img
-                      src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/50/40`}
+                      src={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/50/40`}
                       alt={recipe.title}
                       style={{ width: 50, height: 40, borderRadius: 6, objectFit: 'cover' }}
                     />

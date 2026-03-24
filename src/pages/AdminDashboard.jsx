@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 import { Bar, Doughnut } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js'
 
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
             <div key={u.id} className="admin-user-card">
               <div className="admin-user-info">
                 {u.profile_photo ? (
-                  <img src={`http://localhost:5000${u.profile_photo}`} alt={u.name} className="admin-user-avatar" />
+                  <img src={`${BASE_URL}${u.profile_photo}`} alt={u.name} className="admin-user-avatar" />
                 ) : (
                   <div className="admin-user-avatar-placeholder">
                     {u.name?.charAt(0)?.toUpperCase()}
@@ -272,7 +272,7 @@ export default function AdminDashboard() {
                 <tr key={recipe.id}>
                   <td>
                     <img
-                      src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/60/45`}
+                      src={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/60/45`}
                       alt={recipe.title}
                       className="table-thumb"
                     />

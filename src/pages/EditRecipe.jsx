@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 
 const categories = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snacks', 'Beverages', 'Appetizer']
 const cuisines = ['Indian', 'Italian', 'Chinese', 'Mexican', 'Japanese', 'Thai', 'American', 'French', 'Mediterranean', 'Korean']
@@ -118,7 +118,7 @@ export default function EditRecipe() {
               <input type="file" accept="image/*" onChange={handleThumbnail} />
             </div>
             {(thumbPreview || existingThumb) && (
-              <img src={thumbPreview || `http://localhost:5000${existingThumb}`} alt="Preview" className="file-preview" />
+              <img src={thumbPreview || `${BASE_URL}${existingThumb}`} alt="Preview" className="file-preview" />
             )}
           </div>
 
@@ -200,7 +200,7 @@ export default function EditRecipe() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontSize: '0.85rem', marginBottom: '8px' }}>
                     <span>✅</span> Existing video uploaded
                   </div>
-                  <video src={`http://localhost:5000${existingVideoFile}`} controls style={{ width: '100%', maxHeight: '250px', borderRadius: 'var(--radius-sm)' }} />
+                  <video src={`${BASE_URL}${existingVideoFile}`} controls style={{ width: '100%', maxHeight: '250px', borderRadius: 'var(--radius-sm)' }} />
                 </div>
               )}
               <div className="file-upload-zone video-upload-zone">

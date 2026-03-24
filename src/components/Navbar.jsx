@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { BASE_URL } from '../api'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -53,7 +54,7 @@ export default function Navbar() {
               )}
               <div className="nav-user-menu">
                 <img
-                  src={user.profile_photo ? `http://localhost:5000${user.profile_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ff6b35&color=fff&size=40`}
+                  src={user.profile_photo ? `${BASE_URL}${user.profile_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=ff6b35&color=fff&size=40`}
                   alt={user.name}
                   className="nav-avatar"
                   onClick={() => setDropdownOpen(!dropdownOpen)}

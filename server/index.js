@@ -644,6 +644,11 @@ if (fs.existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`🍳 RecipeHub Server running on http://localhost:${PORT}`);
-});
+// Conditional listener for local dev
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🍳 RecipeHub Server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

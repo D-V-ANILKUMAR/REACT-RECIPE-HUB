@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 
 export default function MyRecipes() {
   const [recipes, setRecipes] = useState([])
@@ -78,7 +78,7 @@ export default function MyRecipes() {
                 <tr key={recipe.id}>
                   <td>
                     <img
-                      src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/60/45`}
+                      src={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/60/45`}
                       alt={recipe.title}
                       className="table-thumb"
                     />

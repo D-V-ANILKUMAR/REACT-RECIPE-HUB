@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 
 const categories = [
   { name: 'All', icon: '🍽️' },
@@ -186,7 +186,7 @@ export default function Home() {
                 >
                   <div className="recipe-card-img-wrapper">
                     <img
-                      src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/400/300`}
+                      src={recipe.thumbnail ? `${BASE_URL}${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/400/300`}
                       alt={recipe.title}
                       className="recipe-card-img"
                     />
@@ -207,7 +207,7 @@ export default function Home() {
                       <div className="recipe-card-author">
                         <img
                           src={recipe.author_photo 
-                            ? `http://localhost:5000${recipe.author_photo}` 
+                            ? `${BASE_URL}${recipe.author_photo}` 
                             : `https://ui-avatars.com/api/?name=${encodeURIComponent(recipe.author_name)}&background=6c5ce7&color=fff&size=28`}
                           alt={recipe.author_name}
                         />

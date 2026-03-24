@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import API from '../api'
+import API, { BASE_URL } from '../api'
 
 export default function Profile() {
   const { user, updateUser } = useAuth()
@@ -80,7 +80,7 @@ export default function Profile() {
         <div className="profile-avatar-wrapper">
           {photoPreview || profile?.profile_photo ? (
             <img
-              src={photoPreview || `http://localhost:5000${profile.profile_photo}`}
+              src={photoPreview || `${BASE_URL}${profile.profile_photo}`}
               alt="Profile"
               className="profile-avatar"
             />
