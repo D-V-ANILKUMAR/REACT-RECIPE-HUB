@@ -102,7 +102,7 @@ export default function Register() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn-primary btn-auth-submit" disabled={loading}>
             {loading ? '⏳ Creating Account...' : '🚀 Create Account'}
           </button>
         </form>

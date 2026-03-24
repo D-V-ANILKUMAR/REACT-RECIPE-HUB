@@ -442,7 +442,7 @@ app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
     const totalRecipes = await pool.query('SELECT COUNT(*) FROM recipes WHERE user_id = $1', [userId]);
-    const totalViews = await pool.query('SELECT COALESCE(SUM(views), 0) as total FROM recipes WHERE user_id = $1', [userId]);
+    const totalViews = await pool.query('SELECT COUNT(*) FROM recipe_views WHERE recipe_id IN (SELECT id FROM recipes WHERE user_id = $1)', [userId]);
     const totalLikes = await pool.query('SELECT COALESCE(SUM(likes), 0) as total FROM recipes WHERE user_id = $1', [userId]);
     const recentRecipes = await pool.query('SELECT * FROM recipes WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', [userId]);
     

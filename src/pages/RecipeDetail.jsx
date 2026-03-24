@@ -63,145 +63,149 @@ export default function RecipeDetail() {
 
   return (
     <div className="recipe-detail fade-in">
-      {/* Hero Image */}
+      {/* Hero Section */}
       <div className="recipe-detail-hero">
         <img
           src={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : `https://picsum.photos/seed/${recipe.id}/900/400`}
           alt={recipe.title}
         />
         <div className="recipe-detail-overlay">
-          <h1>{recipe.title}</h1>
           <div className="recipe-detail-tags">
             {recipe.category && <span className="recipe-tag">🏷️ {recipe.category}</span>}
             {recipe.cuisine && <span className="recipe-tag">🌍 {recipe.cuisine}</span>}
             {recipe.difficulty && <span className="recipe-tag">📊 {recipe.difficulty}</span>}
           </div>
-        </div>
-      </div>
-
-      {/* Quick Info */}
-      <div className="recipe-detail-info">
-        <div className="recipe-info-card">
-          <div className="sticker">⏱️</div>
-          <h4>{recipe.cook_time || 'N/A'}</h4>
-          <p>Cook Time</p>
-        </div>
-        <div className="recipe-info-card">
-          <div className="sticker">🍽️</div>
-          <h4>{recipe.servings || 'N/A'}</h4>
-          <p>Servings</p>
-        </div>
-        <div className="recipe-info-card">
-          <div className="sticker">👁️</div>
-          <h4>{recipe.views || 0}</h4>
-          <p>Views</p>
-        </div>
-        <div className="recipe-info-card" onClick={handleLike} style={{ cursor: 'pointer' }}>
-          <div className="sticker">{liked ? '❤️' : '🤍'}</div>
-          <h4>{recipe.likes || 0}</h4>
-          <p>Likes</p>
-        </div>
-        <div className="recipe-info-card" onClick={handleShare} style={{ cursor: 'pointer' }}>
-          <div className="sticker">🔗</div>
-          <h4>Share</h4>
-          <p>Invite friends</p>
-        </div>
-      </div>
-
-      {/* Author */}
-      <div className="recipe-section">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img
-            src={recipe.author_photo ? `http://localhost:5000${recipe.author_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(recipe.author_name)}&background=6c5ce7&color=fff&size=45`}
-            alt={recipe.author_name}
-            style={{ width: 45, height: 45, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-primary)' }}
-          />
-          <div>
-            <h4 style={{ fontSize: '1rem' }}>👨‍🍳 {recipe.author_name}</h4>
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Published on {new Date(recipe.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </p>
+          <h1>{recipe.title}</h1>
+          <div className="recipe-author-compact">
+            <img
+              src={recipe.author_photo ? `http://localhost:5000${recipe.author_photo}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(recipe.author_name)}&background=6c5ce7&color=fff&size=30`}
+              alt={recipe.author_name}
+            />
+            <span>{recipe.author_name} • {new Date(recipe.created_at).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
-      {/* Description */}
-      {recipe.description && (
-        <div className="recipe-section">
-          <h2><span className="sticker">📖</span> About This Recipe</h2>
-          <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>{recipe.description}</p>
-        </div>
-      )}
+      {/* Main Content Layout */}
+      <div className="recipe-layout-grid">
+        {/* Left Column: Video & Instructions */}
+        <div className="recipe-main-content">
+          {/* Quick Info Bar */}
+          <div className="recipe-quick-info">
+            <div className="info-stat">
+              <span className="sticker">⏱️</span>
+              <div>
+                <p>Time</p>
+                <h5>{recipe.cook_time || 'N/A'}</h5>
+              </div>
+            </div>
+            <div className="info-stat">
+              <span className="sticker">🍽️</span>
+              <div>
+                <p>Servings</p>
+                <h5>{recipe.servings || 'N/A'}</h5>
+              </div>
+            </div>
+            <div className="info-stat">
+              <span className="sticker">👁️</span>
+              <div>
+                <p>Views</p>
+                <h5>{recipe.views || 0}</h5>
+              </div>
+            </div>
+            <div className="info-stat" onClick={handleLike} style={{ cursor: 'pointer' }}>
+              <span className="sticker">{liked ? '❤️' : '🤍'}</span>
+              <div>
+                <p>Likes</p>
+                <h5>{recipe.likes || 0}</h5>
+              </div>
+            </div>
+          </div>
 
-      {/* Ingredients */}
-      {recipe.ingredients && (
-        <div className="recipe-section">
-          <h2><span className="sticker">🥕</span> Ingredients</h2>
-          <ul>
-            {recipe.ingredients.split('\n').filter(i => i.trim()).map((item, idx) => (
-              <li key={idx}>{item.trim()}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+          {/* Video Block (Primary focus) */}
+          {(recipe.video_file || embedUrl) && (
+            <div className="recipe-section video-section-highlight">
+              <h2><span className="sticker">🎥</span> Video Tutorial</h2>
+              {recipe.video_file ? (
+                <video
+                  controls
+                  className="recipe-main-video"
+                  poster={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : undefined}
+                >
+                  <source src={`http://localhost:5000${recipe.video_file}`} />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <iframe
+                  className="recipe-video-embed"
+                  src={embedUrl}
+                  title="Recipe Video"
+                  allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              )}
+            </div>
+          )}
 
-      {/* Instructions */}
-      {recipe.instructions && (
-        <div className="recipe-section">
-          <h2><span className="sticker">👨‍🍳</span> Instructions</h2>
-          <ol>
-            {recipe.instructions.split('\n').filter(i => i.trim()).map((step, idx) => (
-              <li key={idx}>{step.replace(/^step\s*\d+[:.]\s*/i, '').trim()}</li>
-            ))}
-          </ol>
-        </div>
-      )}
+          {/* About */}
+          {recipe.description && (
+            <div className="recipe-section">
+              <h2><span className="sticker">📖</span> About This Recipe</h2>
+              <p className="description-text">{recipe.description}</p>
+            </div>
+          )}
 
-      {/* Uploaded Video File */}
-      {recipe.video_file && (
-        <div className="recipe-section">
-          <h2><span className="sticker">🎥</span> Recipe Video</h2>
-          <video
-            controls
-            style={{ width: '100%', borderRadius: 'var(--radius-lg)', maxHeight: '500px', background: '#000' }}
-            poster={recipe.thumbnail ? `http://localhost:5000${recipe.thumbnail}` : undefined}
-          >
-            <source src={`http://localhost:5000${recipe.video_file}`} />
-            Your browser does not support the video tag.
-          </video>
+          {/* Instructions */}
+          {recipe.instructions && (
+            <div className="recipe-section">
+              <h2><span className="sticker">👨‍🍳</span> Preparation Steps</h2>
+              <ol className="instructions-list">
+                {recipe.instructions.split('\n').filter(i => i.trim()).map((step, idx) => (
+                  <li key={idx}>{step.replace(/^step\s*\d+[:.]\s*/i, '').trim()}</li>
+                ))}
+              </ol>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* YouTube Video */}
-      {embedUrl && !recipe.video_file && (
-        <div className="recipe-section">
-          <h2><span className="sticker">📺</span> Video Tutorial</h2>
-          <iframe
-            className="recipe-video-embed"
-            src={embedUrl}
-            title="Recipe Video"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </div>
-      )}
+        {/* Right Column: Sidebar (Ingredients & Actions) */}
+        <aside className="recipe-sidebar">
+          {/* Ingredients */}
+          {recipe.ingredients && (
+            <div className="recipe-section sidebar-section">
+              <h3><span className="sticker">🥕</span> Ingredients</h3>
+              <ul className="ingredients-list">
+                {recipe.ingredients.split('\n').filter(i => i.trim()).map((item, idx) => (
+                  <li key={idx}>{item.trim()}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {/* Actions */}
-      {user && (user.id === recipe.user_id || user.role === 'admin') && (
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          <button className="btn-primary" style={{ flex: 1 }} onClick={() => navigate(`/edit-recipe/${recipe.id}`)}>
-            ✏️ Edit Recipe
-          </button>
-          <button className="btn-danger" style={{ flex: 1 }} onClick={async () => {
-            if (confirm('Are you sure you want to delete this recipe?')) {
-              await API.delete(`/recipes/${recipe.id}`)
-              navigate('/my-recipes')
-            }
-          }}>
-            🗑️ Delete
-          </button>
-        </div>
-      )}
+          {/* Actions */}
+          <div className="recipe-actions-sticky">
+            <button className="btn-secondary share-btn" onClick={handleShare}>
+              <span>🔗</span> Share Recipe
+            </button>
+            
+            {user && (user.id === recipe.user_id || user.role === 'admin') && (
+              <div className="owner-actions">
+                <button className="btn-primary" onClick={() => navigate(`/edit-recipe/${recipe.id}`)}>
+                  ✏️ Edit
+                </button>
+                <button className="btn-danger" onClick={async () => {
+                  if (confirm('Are you sure you want to delete this recipe?')) {
+                    await API.delete(`/recipes/${recipe.id}`)
+                    navigate('/my-recipes')
+                  }
+                }}>
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }

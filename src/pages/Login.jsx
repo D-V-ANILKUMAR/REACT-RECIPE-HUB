@@ -57,7 +57,7 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn-primary btn-auth-submit" disabled={loading}>
             {loading ? '⏳ Signing In...' : '🚀 Sign In'}
           </button>
         </form>
