@@ -917,8 +917,7 @@ app.get("/api/youtube/search", async (req, res) => {
   try {
     const { q = "cooking recipe" } = req.query;
     // Enhanced query for cooking specifically in Telugu and English
-    // Exclusion: -vlog -travel -nature -music -funny -compilation
-    const searchQuery = `${q} cooking recipe food telugu english tutorial`;
+    const searchQuery = `${q} cooking recipe (in telugu OR in english)`;
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=26&relevanceLanguage=en&key=${YOUTUBE_API_KEY}`,
     );
@@ -934,76 +933,63 @@ app.get("/api/youtube/search", async (req, res) => {
 });
 
 function getMockYouTubeVideos(query) {
-  const videos = [
+  const qStr = query.split(' ')[0] || "Cooking";
+  return [
     {
-      id: { videoId: "aqz-KE-bpKQ" },
+      id: { videoId: "bO1f2YwXXdY" }, // Real looking ID
       snippet: {
-        title: `${query} Masterclass | Telugu Cooking`,
-        description:
-          "Professional cooking tutorial in Telugu and English for the perfect dish.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/aqz-KE-bpKQ/hqdefault.jpg" },
-        },
-        channelTitle: "Culinary Arts Telugu",
+        title: `Authentic ${qStr} Recipe in Telugu | Tasty & Easy`,
+        description: `Learn how to make the perfect ${qStr} step by step in Telugu. Enjoy this classic traditional style cooking.`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80" } },
+        channelTitle: "Andhra Kitchen Vlogs",
       },
     },
     {
-      id: { videoId: "fAnvTfSTGQA" },
+      id: { videoId: "W7GQz5kZ9D8" },
       snippet: {
-        title: `Traditional ${query} Recipe | English & Telugu`,
-        description: "Classic family recipe with easy-to-follow instructions in Telugu.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/fAnvTfSTGQA/hqdefault.jpg" },
-        },
-        channelTitle: "Home Kitchen Treats",
+        title: `Restaurant Style ${qStr} | English Cooking Tutorial`,
+        description: `The best ${qStr} recipe you will ever try. Quick, healthy, and easy to follow instructions in English.`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&q=80" } },
+        channelTitle: "Chef's Global Kitchen",
       },
     },
     {
-      id: { videoId: "9_7mY5p_tYg" },
+      id: { videoId: "xyz123abc45" },
       snippet: {
-        title: `Gourmet ${query} Recipe Guide`,
-        description: "elevate your cooking with these professional techniques.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/9_7mY5p_tYg/hqdefault.jpg" },
-        },
-        channelTitle: "Chef Life",
+        title: `Quick & Easy ${qStr} | Bachelor Cooking (Telugu)`,
+        description: `A fast 10-minute ${qStr} recipe for beginners. Very simple ingredients explained in Telugu!`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80" } },
+        channelTitle: "Telugu Foodie Hub",
       },
     },
     {
-      id: { videoId: "M9-S6S-k6kE" },
+      id: { videoId: "qwe456rty78" },
       snippet: {
-        title: `Quick & Healthy ${query}`,
-        description: "Nutritious and delicious meal prep ideas.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/M9-S6S-k6kE/hqdefault.jpg" },
-        },
-        channelTitle: "Healthy Eats",
+        title: `Perfect ${qStr} Masterclass | English`,
+        description: `Master the art of making ${qStr} from scratch. Detailed tips, tricks, and English voiceover.`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&q=80" } },
+        channelTitle: "Culinary Secrets",
       },
     },
     {
-      id: { videoId: "_XW6ToYdf0s" },
+      id: { videoId: "lmnop987qrs" },
       snippet: {
-        title: `Ultimate ${query} Preparation`,
-        description: "The absolute best way to prepare this classic favorite.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/_XW6ToYdf0s/hqdefault.jpg" },
-        },
-        channelTitle: "Master Chef",
+        title: `Spicy ${qStr} Village Style | Telugu Recipe`,
+        description: `Traditional village style preparation of ${qStr}. Authentic taste in Telugu language.`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80" } },
+        channelTitle: "Village Cooking Telugu",
       },
     },
     {
-      id: { videoId: "y_f0OaVfD0U" },
+      id: { videoId: "uvw345xyz12" },
       snippet: {
-        title: `Homemade ${query} from Scratch`,
-        description: "Everything from ingredients to the final plate.",
-        thumbnails: {
-          high: { url: "https://img.youtube.com/vi/y_f0OaVfD0U/hqdefault.jpg" },
-        },
-        channelTitle: "Basics of Cooking",
+        title: `Healthy ${qStr} Meal Prep | English Instructions`,
+        description: `Healthy, low-calorie version of ${qStr}. Great for meal prep! Full instructions provided in English.`,
+        thumbnails: { high: { url: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80" } },
+        channelTitle: "Healthy Life Eats",
       },
     },
   ];
-  return videos;
 }
 
 // Serve frontend in production/testing
