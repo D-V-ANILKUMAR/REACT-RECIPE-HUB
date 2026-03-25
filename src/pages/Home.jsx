@@ -21,6 +21,9 @@ export default function Home() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
   const [suggestions, setSuggestions] = useState([])
+  const [youtubeVideos, setYoutubeVideos] = useState([])
+  const [ytLoading, setYtLoading] = useState(false)
+  const [selectedYtVideo, setSelectedYtVideo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
@@ -28,17 +31,37 @@ export default function Home() {
 
   const fetchRecipes = useCallback(async () => {
     setLoading(true)
+    if (search || category) {
+      setYtLoading(true)
+    } else {
+      setYoutubeVideos([])
+    }
+    
     try {
       const params = { page, limit: 12 }
       if (search) params.search = search
       if (category) params.category = category
-      const res = await API.get('/recipes', { params })
-      setRecipes(res.data.recipes)
-      setTotal(res.data.total)
+      
+      const reqs = [API.get('/recipes', { params })]
+      
+      // Also fetch YouTube videos if there's a search or category
+      if (search || category) {
+        reqs.push(API.get('/youtube/search', { params: { q: search || category } }).catch(() => ({ data: { items: [] } })))
+      }
+      
+      const results = await Promise.all(reqs)
+      
+      setRecipes(results[0].data.recipes)
+      setTotal(results[0].data.total)
+      
+      if (results[1]) {
+        setYoutubeVideos(results[1].data.items || [])
+      }
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
+      setYtLoading(false)
     }
   }, [search, category, page])
 
@@ -246,6 +269,73 @@ export default function Home() {
           </>
         )}
       </section>
+
+      {/* YouTube Videos Section */}
+      {(search || category) && (
+        <section className="section fade-in" style={{ paddingTop: 0 }}>
+          <div className="section-header">
+            <h2 className="section-title">
+              <span className="sticker">📺</span> Top {search || category} YouTube Videos
+            </h2>
+          </div>
+
+          {/* Video Player */}
+          {selectedYtVideo && (
+            <div id="yt-player-container-home" className="recipe-section" style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2><span className="sticker">▶️</span> Now Playing</h2>
+                <button className="btn-icon" onClick={() => setSelectedYtVideo(null)}>✕</button>
+              </div>
+              <iframe
+                className="recipe-video-embed"
+                src={`https://www.youtube.com/embed/${typeof selectedYtVideo.id === 'string' ? selectedYtVideo.id : selectedYtVideo.id?.videoId}?rel=0&origin=${window.location.origin}`}
+                title={selectedYtVideo.snippet?.title}
+                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+              <h3 style={{ marginTop: '1rem', fontSize: '1.1rem' }}>{selectedYtVideo.snippet?.title}</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                {selectedYtVideo.snippet?.channelTitle} • {selectedYtVideo.snippet?.description?.slice(0, 150)}...
+              </p>
+            </div>
+          )}
+
+          {ytLoading ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Finding YouTube videos... 📺</p>
+            </div>
+          ) : youtubeVideos?.length > 0 ? (
+            <div className="youtube-grid">
+              {youtubeVideos.map((video, index) => (
+                <div
+                  key={index}
+                  className="youtube-card glow-on-hover"
+                  onClick={() => {
+                    setSelectedYtVideo(video)
+                    setTimeout(() => {
+                      document.getElementById('yt-player-container-home')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }, 100)
+                  }}
+                >
+                  <img
+                    src={video.snippet?.thumbnails?.high?.url || video.snippet?.thumbnails?.default?.url}
+                    alt={video.snippet?.title}
+                  />
+                  <div className="youtube-card-body">
+                    <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>{video.snippet?.title}</h3>
+                    <p style={{ fontSize: '0.85rem' }}>📺 {video.snippet?.channelTitle}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No YouTube videos found for this search.</p>
+            </div>
+          )}
+        </section>
+      )}
 
     </div>
   )
