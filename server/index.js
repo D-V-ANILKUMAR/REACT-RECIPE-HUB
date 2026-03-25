@@ -9,7 +9,9 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +19,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "recipe_hub_super_secret_key_2026";
+
+// Ping route for checking server status without DB dependency
+app.get("/api/ping", (req, res) => res.json({ status: "pong", env: process.env.NODE_ENV }));
 
 // Middleware
 app.use(cors());
@@ -79,13 +84,17 @@ pool.on("error", (err) => {
   console.error("❌ Unexpected error on idle client", err);
 });
 
-pool.query("SELECT NOW()", (err, result) => {
-  if (err) {
-    console.error("❌ Database connection failed:", err.message);
-  } else {
-    console.log("✅ Database connected successfully");
-  }
-});
+try {
+  pool.query("SELECT NOW()", (err, result) => {
+    if (err) {
+      console.error("❌ Database connection check failed:", err.message);
+    } else {
+      console.log("✅ Database connected successfully");
+    }
+  });
+} catch (err) {
+  console.error("❌ Synchronous error checking database:", err.message);
+}
 
 // Initialize database tables
 async function initDB() {
