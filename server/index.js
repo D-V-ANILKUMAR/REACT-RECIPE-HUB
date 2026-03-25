@@ -911,14 +911,14 @@ app.get("/api/my-recipes", authMiddleware, async (req, res) => {
 });
 
 // ============ YOUTUBE API PROXY ============
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || "AIzaSyDummyKeyReplace";
+const YOUTUBE_API_KEY = "AIzaSyDummyKeyReplace";
 
 app.get("/api/youtube/search", async (req, res) => {
   try {
     const { q = "cooking recipe" } = req.query;
-    const searchQuery = `${q} food recipe cooking tutorial -vlog -travel -nature -music -news -political`;
+    const searchQuery = `${q} -vlog -travel -nature -music food recipe cooking tutorial`;
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=26&relevanceLanguage=en&key=${YOUTUBE_API_KEY}`,
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=26&key=${YOUTUBE_API_KEY}`,
     );
     const data = await response.json();
     if (data.error) {
