@@ -62,8 +62,12 @@ const recipeUpload = upload.fields([
 ]);
 
 // PostgreSQL connection
+if (!process.env.DATABASE_URL && process.env.NODE_ENV === "production" && process.env.VERCEL) {
+  console.error("⚠️ DATABASE_URL is missing in production environment!");
+}
+
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || "postgresql://localhost:5432/recipe_hub",
   ssl:
     process.env.NODE_ENV === "production"
       ? { rejectUnauthorized: false }
@@ -85,8 +89,14 @@ pool.query("SELECT NOW()", (err, result) => {
 
 // Initialize database tables
 async function initDB() {
-  const client = await pool.connect();
+  if (!process.env.DATABASE_URL) {
+    console.error("❌ DATABASE_URL is not defined in environment variables");
+    return;
+  }
+
+  let client;
   try {
+    client = await pool.connect();
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -175,11 +185,14 @@ async function initDB() {
   } catch (err) {
     console.error("❌ DB init error:", err.message);
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }
 
-initDB();
+// Call initDB but catch errors to prevent crashing the server
+initDB().catch(err => {
+  console.error("❌ Fatal DB init error:", err.message);
+});
 
 // Auth middleware
 function authMiddleware(req, res, next) {
