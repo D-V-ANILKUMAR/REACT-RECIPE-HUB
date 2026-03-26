@@ -936,57 +936,57 @@ function getMockYouTubeVideos(query) {
   const qStr = query.split(' ')[0] || "Cooking";
   return [
     {
-      id: { videoId: "bO1f2YwXXdY" }, // Real looking ID
+      id: { videoId: "VVnZd8A84z4" },
       snippet: {
-        title: `Authentic ${qStr} Recipe in Telugu | Tasty & Easy`,
-        description: `Learn how to make the perfect ${qStr} step by step in Telugu. Enjoy this classic traditional style cooking.`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80" } },
-        channelTitle: "Andhra Kitchen Vlogs",
+        title: `${qStr} Recipe - Gordon Ramsay`,
+        description: `Gordon Ramsay shows how to make the perfect ${qStr}. Easy step-by-step cooking tutorial.`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/VVnZd8A84z4/hqdefault.jpg" } },
+        channelTitle: "Gordon Ramsay",
       },
     },
     {
-      id: { videoId: "W7GQz5kZ9D8" },
+      id: { videoId: "rS-MpMAMB_s" },
       snippet: {
-        title: `Restaurant Style ${qStr} | English Cooking Tutorial`,
-        description: `The best ${qStr} recipe you will ever try. Quick, healthy, and easy to follow instructions in English.`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&q=80" } },
-        channelTitle: "Chef's Global Kitchen",
+        title: `Easy ${qStr} Recipe for Beginners`,
+        description: `Learn to cook ${qStr} with this simple beginner-friendly recipe. Delicious results every time!`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/rS-MpMAMB_s/hqdefault.jpg" } },
+        channelTitle: "Tasty",
       },
     },
     {
-      id: { videoId: "xyz123abc45" },
+      id: { videoId: "n-hKc2r7FUk" },
       snippet: {
-        title: `Quick & Easy ${qStr} | Bachelor Cooking (Telugu)`,
-        description: `A fast 10-minute ${qStr} recipe for beginners. Very simple ingredients explained in Telugu!`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80" } },
-        channelTitle: "Telugu Foodie Hub",
+        title: `Traditional ${qStr} | Indian Style Cooking`,
+        description: `Authentic Indian style ${qStr} recipe with aromatic spices. Perfect comfort food!`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/n-hKc2r7FUk/hqdefault.jpg" } },
+        channelTitle: "Hebbars Kitchen",
       },
     },
     {
-      id: { videoId: "qwe456rty78" },
+      id: { videoId: "fsEkCOSKqjI" },
       snippet: {
-        title: `Perfect ${qStr} Masterclass | English`,
-        description: `Master the art of making ${qStr} from scratch. Detailed tips, tricks, and English voiceover.`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=400&q=80" } },
-        channelTitle: "Culinary Secrets",
+        title: `Street Food ${qStr} | Amazing Cooking Skills`,
+        description: `Watch incredible street food preparation of ${qStr}. Amazing flavors and techniques!`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/fsEkCOSKqjI/hqdefault.jpg" } },
+        channelTitle: "Street Food India",
       },
     },
     {
-      id: { videoId: "lmnop987qrs" },
+      id: { videoId: "1IszT_guI08" },
       snippet: {
-        title: `Spicy ${qStr} Village Style | Telugu Recipe`,
-        description: `Traditional village style preparation of ${qStr}. Authentic taste in Telugu language.`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80" } },
-        channelTitle: "Village Cooking Telugu",
+        title: `${qStr} in 15 Minutes | Quick & Tasty`,
+        description: `Super quick ${qStr} recipe ready in just 15 minutes. Perfect for busy weekdays!`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/1IszT_guI08/hqdefault.jpg" } },
+        channelTitle: "Joshua Weissman",
       },
     },
     {
-      id: { videoId: "uvw345xyz12" },
+      id: { videoId: "eQgIwwKmjdo" },
       snippet: {
-        title: `Healthy ${qStr} Meal Prep | English Instructions`,
-        description: `Healthy, low-calorie version of ${qStr}. Great for meal prep! Full instructions provided in English.`,
-        thumbnails: { high: { url: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80" } },
-        channelTitle: "Healthy Life Eats",
+        title: `Healthy ${qStr} Meal Prep | Easy & Nutritious`,
+        description: `Healthy version of ${qStr} that's great for meal prep. Low calorie and full of flavor!`,
+        thumbnails: { high: { url: "https://i.ytimg.com/vi/eQgIwwKmjdo/hqdefault.jpg" } },
+        channelTitle: "Binging with Babish",
       },
     },
   ];
@@ -996,7 +996,7 @@ function getMockYouTubeVideos(query) {
 const distPath = path.join(__dirname, "../dist");
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.get("*", (req, res) => {
+  app.get("(.*)", (req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
 }
