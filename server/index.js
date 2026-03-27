@@ -8,8 +8,10 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import cloudinary from "./cloudinary.js";
+import { Readable } from "stream";
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
@@ -21,7 +23,9 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "recipe_hub_super_secret_key_2026";
 
 // Ping route for checking server status without DB dependency
-app.get("/api/ping", (req, res) => res.json({ status: "pong", env: process.env.NODE_ENV }));
+app.get("/api/ping", (req, res) =>
+  res.json({ status: "pong", env: process.env.NODE_ENV }),
+);
 
 // Middleware
 app.use(cors());
@@ -29,7 +33,7 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use((req, res, next) => {
-  if (req.body && typeof req.body === 'string') {
+  if (req.body && typeof req.body === "string") {
     try {
       req.body = JSON.parse(req.body);
     } catch (e) {}
@@ -48,31 +52,45 @@ try {
   console.log("Uploads dir skip (Normal for serverless/read-only)");
 }
 
-// Multer config for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueName =
-      Date.now() +
-      "-" +
-      Math.round(Math.random() * 1e9) +
-      path.extname(file.originalname);
-    cb(null, uniqueName);
-  },
-});
+// Multer config for file uploads - Use memory storage (files in RAM temporarily)
+const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 200 * 1024 * 1024 } });
 const recipeUpload = upload.fields([
   { name: "thumbnail", maxCount: 1 },
   { name: "video_file", maxCount: 1 },
 ]);
 
+// Helper function to upload file to Cloudinary
+async function uploadToCloudinary(fileBuffer, filename, folder) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "auto",
+        folder: folder || "recipe-hub",
+        public_id: filename.split(".")[0],
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      },
+    );
+
+    Readable.from(fileBuffer).pipe(stream);
+  });
+}
+
 // PostgreSQL connection
-if (!process.env.DATABASE_URL && process.env.NODE_ENV === "production" && process.env.VERCEL) {
+if (
+  !process.env.DATABASE_URL &&
+  process.env.NODE_ENV === "production" &&
+  process.env.VERCEL
+) {
   console.error("⚠️ DATABASE_URL is missing in production environment!");
 }
 
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://localhost:5432/recipe_hub",
+  connectionString:
+    process.env.DATABASE_URL || "postgresql://localhost:5432/recipe_hub",
   ssl:
     process.env.NODE_ENV === "production"
       ? { rejectUnauthorized: false }
@@ -122,11 +140,21 @@ async function initDB() {
     `);
 
     // Ensure all columns exist for existing users table (Migrations)
-    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile VARCHAR(20)");
-    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(20)");
-    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS age INTEGER");
-    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo TEXT");
-    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'");
+    await client.query(
+      "ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile VARCHAR(20)",
+    );
+    await client.query(
+      "ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(20)",
+    );
+    await client.query(
+      "ALTER TABLE users ADD COLUMN IF NOT EXISTS age INTEGER",
+    );
+    await client.query(
+      "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo TEXT",
+    );
+    await client.query(
+      "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'",
+    );
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS recipes (
@@ -206,7 +234,7 @@ async function initDB() {
 }
 
 // Call initDB but catch errors to prevent crashing the server
-initDB().catch(err => {
+initDB().catch((err) => {
   console.error("❌ Fatal DB init error:", err.message);
 });
 
@@ -355,11 +383,9 @@ app.post("/api/auth/login", async (req, res) => {
     }
   } catch (err) {
     console.error("❌ Unexpected login error:", err);
-    res
-      .status(500)
-      .json({
-        error: "An unexpected server error occurred. Please try again later.",
-      });
+    res.status(500).json({
+      error: "An unexpected server error occurred. Please try again later.",
+    });
   }
 });
 
@@ -377,10 +403,11 @@ app.get("/api/profile", authMiddleware, async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error("❌ Profile Retrieval Failed:", err.message);
-    res.status(500).json({ 
-      error: "Profile failed to load", 
+    res.status(500).json({
+      error: "Profile failed to load",
       message: err.message,
-      check: "Make sure your DATABASE_URL is correctly set in Vercel environment variables."
+      check:
+        "Make sure your DATABASE_URL is correctly set in Vercel environment variables.",
     });
   }
 });
@@ -393,18 +420,30 @@ app.put(
   async (req, res) => {
     try {
       const { name, mobile, gender, age, password } = req.body;
-      let photoPath = null;
+      let photoUrl = null;
+
       if (req.file) {
-        photoPath = "/uploads/" + req.file.filename;
+        try {
+          const filename = `profile-${req.user.id}-${Date.now()}`;
+          const result = await uploadToCloudinary(
+            req.file.buffer,
+            filename,
+            "recipe-hub/profiles",
+          );
+          photoUrl = result.secure_url;
+        } catch (err) {
+          console.error("❌ Cloudinary upload failed:", err.message);
+          return res.status(500).json({ error: "Photo upload failed" });
+        }
       }
 
       let query = "UPDATE users SET name=$1, mobile=$2, gender=$3, age=$4";
       let params = [name, mobile, gender, age];
       let paramIndex = 5;
 
-      if (photoPath) {
+      if (photoUrl) {
         query += `, profile_photo=$${paramIndex}`;
-        params.push(photoPath);
+        params.push(photoUrl);
         paramIndex++;
       }
       if (password && password.trim() !== "") {
@@ -442,16 +481,43 @@ app.post("/api/recipes", authMiddleware, recipeUpload, async (req, res) => {
       difficulty,
       video_url,
     } = req.body;
-    let thumbnailPath = null;
-    let videoFilePath = null;
+    let thumbnailUrl = null;
+    let videoFileUrl = null;
+
+    // Upload thumbnail to Cloudinary
     if (req.files?.thumbnail?.[0]) {
-      thumbnailPath = "/uploads/" + req.files.thumbnail[0].filename;
+      try {
+        const filename = `thumbnail-${req.user.id}-${Date.now()}`;
+        const result = await uploadToCloudinary(
+          req.files.thumbnail[0].buffer,
+          filename,
+          "recipe-hub/thumbnails",
+        );
+        thumbnailUrl = result.secure_url;
+      } catch (err) {
+        console.error("❌ Thumbnail upload failed:", err.message);
+        return res.status(500).json({ error: "Thumbnail upload failed" });
+      }
     }
+
+    // Upload video file to Cloudinary (if no video URL)
     if (video_url && video_url.trim() !== "") {
-      videoFilePath = null;
+      videoFileUrl = null;
     } else if (req.files?.video_file?.[0]) {
-      videoFilePath = "/uploads/" + req.files.video_file[0].filename;
+      try {
+        const filename = `video-${req.user.id}-${Date.now()}`;
+        const result = await uploadToCloudinary(
+          req.files.video_file[0].buffer,
+          filename,
+          "recipe-hub/videos",
+        );
+        videoFileUrl = result.secure_url;
+      } catch (err) {
+        console.error("❌ Video upload failed:", err.message);
+        return res.status(500).json({ error: "Video upload failed" });
+      }
     }
+
     const result = await pool.query(
       `INSERT INTO recipes (user_id, title, description, ingredients, instructions, category, cuisine, cook_time, servings, difficulty, thumbnail, video_url, video_file)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
@@ -466,9 +532,9 @@ app.post("/api/recipes", authMiddleware, recipeUpload, async (req, res) => {
         cook_time,
         servings,
         difficulty,
-        thumbnailPath,
+        thumbnailUrl,
         video_url,
-        videoFilePath,
+        videoFileUrl,
       ],
     );
     res.json(result.rows[0]);
@@ -619,19 +685,41 @@ app.put("/api/recipes/:id", authMiddleware, recipeUpload, async (req, res) => {
       return res.status(403).json({ error: "Not authorized" });
     }
 
-    let thumbnailPath = existing.rows[0].thumbnail;
-    let videoFilePath = existing.rows[0].video_file;
+    let thumbnailUrl = existing.rows[0].thumbnail;
+    let videoFileUrl = existing.rows[0].video_file;
 
     if (req.files?.thumbnail?.[0]) {
-      thumbnailPath = "/uploads/" + req.files.thumbnail[0].filename;
+      try {
+        const filename = `thumbnail-${req.user.id}-${Date.now()}`;
+        const result = await uploadToCloudinary(
+          req.files.thumbnail[0].buffer,
+          filename,
+          "recipe-hub/thumbnails",
+        );
+        thumbnailUrl = result.secure_url;
+      } catch (err) {
+        console.error("❌ Thumbnail upload failed:", err.message);
+        return res.status(500).json({ error: "Thumbnail upload failed" });
+      }
     }
 
     if (video_url && video_url.trim() !== "") {
       // If YouTube URL is provided, clear the local video file
-      videoFilePath = null;
+      videoFileUrl = null;
     } else if (req.files?.video_file?.[0]) {
-      // If new video file is uploaded, use it (assumes video_url is cleared by frontend)
-      videoFilePath = "/uploads/" + req.files.video_file[0].filename;
+      // If new video file is uploaded, use it
+      try {
+        const filename = `video-${req.user.id}-${Date.now()}`;
+        const result = await uploadToCloudinary(
+          req.files.video_file[0].buffer,
+          filename,
+          "recipe-hub/videos",
+        );
+        videoFileUrl = result.secure_url;
+      } catch (err) {
+        console.error("❌ Video upload failed:", err.message);
+        return res.status(500).json({ error: "Video upload failed" });
+      }
     }
 
     const result = await pool.query(
@@ -648,9 +736,9 @@ app.put("/api/recipes/:id", authMiddleware, recipeUpload, async (req, res) => {
         cook_time,
         servings,
         difficulty,
-        thumbnailPath,
+        thumbnailUrl,
         video_url,
-        videoFilePath,
+        videoFileUrl,
         req.params.id,
       ],
     );
@@ -945,14 +1033,16 @@ app.get("/api/youtube/search", async (req, res) => {
 });
 
 function getMockYouTubeVideos(query) {
-  const qStr = query.split(' ')[0] || "Cooking";
+  const qStr = query.split(" ")[0] || "Cooking";
   return [
     {
       id: { videoId: "VVnZd8A84z4" },
       snippet: {
         title: `${qStr} Recipe - Gordon Ramsay`,
         description: `Gordon Ramsay shows how to make the perfect ${qStr}. Easy step-by-step cooking tutorial.`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/VVnZd8A84z4/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/VVnZd8A84z4/hqdefault.jpg" },
+        },
         channelTitle: "Gordon Ramsay",
       },
     },
@@ -961,7 +1051,9 @@ function getMockYouTubeVideos(query) {
       snippet: {
         title: `Easy ${qStr} Recipe for Beginners`,
         description: `Learn to cook ${qStr} with this simple beginner-friendly recipe. Delicious results every time!`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/rS-MpMAMB_s/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/rS-MpMAMB_s/hqdefault.jpg" },
+        },
         channelTitle: "Tasty",
       },
     },
@@ -970,7 +1062,9 @@ function getMockYouTubeVideos(query) {
       snippet: {
         title: `Traditional ${qStr} | Indian Style Cooking`,
         description: `Authentic Indian style ${qStr} recipe with aromatic spices. Perfect comfort food!`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/n-hKc2r7FUk/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/n-hKc2r7FUk/hqdefault.jpg" },
+        },
         channelTitle: "Hebbars Kitchen",
       },
     },
@@ -979,7 +1073,9 @@ function getMockYouTubeVideos(query) {
       snippet: {
         title: `Street Food ${qStr} | Amazing Cooking Skills`,
         description: `Watch incredible street food preparation of ${qStr}. Amazing flavors and techniques!`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/fsEkCOSKqjI/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/fsEkCOSKqjI/hqdefault.jpg" },
+        },
         channelTitle: "Street Food India",
       },
     },
@@ -988,7 +1084,9 @@ function getMockYouTubeVideos(query) {
       snippet: {
         title: `${qStr} in 15 Minutes | Quick & Tasty`,
         description: `Super quick ${qStr} recipe ready in just 15 minutes. Perfect for busy weekdays!`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/1IszT_guI08/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/1IszT_guI08/hqdefault.jpg" },
+        },
         channelTitle: "Joshua Weissman",
       },
     },
@@ -997,7 +1095,9 @@ function getMockYouTubeVideos(query) {
       snippet: {
         title: `Healthy ${qStr} Meal Prep | Easy & Nutritious`,
         description: `Healthy version of ${qStr} that's great for meal prep. Low calorie and full of flavor!`,
-        thumbnails: { high: { url: "https://i.ytimg.com/vi/eQgIwwKmjdo/hqdefault.jpg" } },
+        thumbnails: {
+          high: { url: "https://i.ytimg.com/vi/eQgIwwKmjdo/hqdefault.jpg" },
+        },
         channelTitle: "Binging with Babish",
       },
     },
