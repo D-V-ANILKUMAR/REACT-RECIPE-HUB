@@ -121,6 +121,13 @@ async function initDB() {
       );
     `);
 
+    // Ensure all columns exist for existing users table (Migrations)
+    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile VARCHAR(20)");
+    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(20)");
+    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS age INTEGER");
+    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo TEXT");
+    await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'");
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS recipes (
         id SERIAL PRIMARY KEY,
@@ -369,7 +376,12 @@ app.get("/api/profile", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Profile Retrieval Failed:", err.message);
+    res.status(500).json({ 
+      error: "Profile failed to load", 
+      message: err.message,
+      check: "Make sure your DATABASE_URL is correctly set in Vercel environment variables."
+    });
   }
 });
 

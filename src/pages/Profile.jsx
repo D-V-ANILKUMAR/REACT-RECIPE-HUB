@@ -57,11 +57,17 @@ export default function Profile() {
       if (form.password) formData.append('password', form.password)
       if (profilePhoto) formData.append('profile_photo', profilePhoto)
 
+      // 2. We MUST send data to backend (Permanent saving)
       const res = await API.put('/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      setProfile(res.data)
+      
+      // 3. Reload updated data after saving (Very Important)
+      await fetchProfile()
+      
+      // Update global context for navbar/sync
       updateUser({ ...user, name: res.data.name, profile_photo: res.data.profile_photo })
+      
       setMessage('✅ Profile updated successfully!')
       setForm(prev => ({ ...prev, password: '' }))
     } catch (err) {
