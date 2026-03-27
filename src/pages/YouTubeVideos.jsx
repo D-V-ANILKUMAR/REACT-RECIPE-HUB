@@ -158,9 +158,11 @@ export default function YouTubeVideos() {
               <img
                 src={
                   video.snippet?.thumbnails?.high?.url ||
-                  video.snippet?.thumbnails?.default?.url
+                  video.snippet?.thumbnails?.default?.url ||
+                  `https://picsum.photos/seed/${video.id.videoId}/320/180`
                 }
                 alt={video.snippet?.title}
+                style={{ display: "block" }}
               />
               <div className="youtube-card-body">
                 <h3>{video.snippet?.title}</h3>
