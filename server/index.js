@@ -1013,21 +1013,50 @@ app.get("/api/my-recipes", authMiddleware, async (req, res) => {
 // ============ YOUTUBE API PROXY ============
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || "AIzaSyDummyKeyReplace";
 
+console.log(
+  "📺 YouTube API Key loaded:",
+  YOUTUBE_API_KEY.substring(0, 10) + "...",
+);
+
 app.get("/api/youtube/search", async (req, res) => {
   try {
     const { q = "cooking recipe" } = req.query;
-    // Enhanced query for cooking specifically in Telugu and English
-    const searchQuery = `${q} cooking recipe (in telugu OR in english)`;
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(searchQuery)}&type=video&videoCategoryId=26&relevanceLanguage=en&key=${YOUTUBE_API_KEY}`,
-    );
-    const data = await response.json();
-    if (data.error) {
-      // Fallback: return mock data if API key is invalid
+    console.log(`🔍 Searching YouTube for: ${q}`);
+
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "AIzaSyDummyKeyReplace") {
+      console.warn("⚠️ No valid YouTube API key found. Using mock videos.");
       return res.json({ items: getMockYouTubeVideos(q) });
     }
+
+    // Search for food/cooking videos
+    const searchQuery = `${q} recipe cooking tutorial`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(searchQuery)}&type=video&order=relevance&key=${YOUTUBE_API_KEY}`;
+
+    console.log("📡 Calling YouTube API...");
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.error) {
+      console.error("❌ YouTube API Error:", JSON.stringify(data.error));
+      console.log("⚠️ Falling back to mock videos");
+      return res.json({ items: getMockYouTubeVideos(q) });
+    }
+
+    if (!data.items || data.items.length === 0) {
+      console.warn("⚠️ No videos found, using mock data");
+      return res.json({ items: getMockYouTubeVideos(q) });
+    }
+
+    console.log(`✅ Found ${data.items.length} YouTube videos`);
     res.json(data);
   } catch (err) {
+    console.error("❌ YouTube Search Error:", err.message);
+    console.log("⚠️ Falling back to mock videos");
     res.json({ items: getMockYouTubeVideos(req.query.q || "") });
   }
 });

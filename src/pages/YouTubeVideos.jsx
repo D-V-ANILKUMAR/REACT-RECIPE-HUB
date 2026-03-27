@@ -1,56 +1,67 @@
-import { useState, useEffect } from 'react'
-import API from '../api'
+import { useState, useEffect } from "react";
+import API from "../api";
 
 export default function YouTubeVideos() {
-  const [videos, setVideos] = useState([])
-  const [search, setSearch] = useState('cooking recipe')
-  const [loading, setLoading] = useState(true)
-  const [selectedVideo, setSelectedVideo] = useState(null)
+  const [videos, setVideos] = useState([]);
+  const [search, setSearch] = useState("cooking recipe");
+  const [loading, setLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   const handleVideoClick = (video) => {
-    setSelectedVideo(video)
+    setSelectedVideo(video);
     setTimeout(() => {
-      document.getElementById('yt-player-container-page')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 100)
-  }
+      document
+        .getElementById("yt-player-container-page")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
 
   const fetchVideos = async (query) => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.get('/youtube/search', { params: { q: query } })
-      setVideos(res.data.items || [])
+      console.log(`🔍 Fetching videos for: ${query}`);
+      const res = await API.get("/youtube/search", { params: { q: query } });
+      const items = res.data.items || [];
+      console.log(`✅ Got ${items.length} videos`);
+      setVideos(items);
     } catch (err) {
-      console.error(err)
+      console.error("❌ Error fetching YouTube videos:", err);
+      setVideos([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchVideos(search)
-  }, [])
+    fetchVideos(search);
+  }, []);
 
   const handleSearch = (e) => {
-    e.preventDefault()
-    fetchVideos(search)
-  }
+    e.preventDefault();
+    fetchVideos(search);
+  };
 
   return (
     <div className="section fade-in">
       <div className="dashboard-header">
-        <h1><span className="sticker sticker-bounce">📺</span> Food Video Recipes</h1>
+        <h1>
+          <span className="sticker sticker-bounce">📺</span> Food Video Recipes
+        </h1>
         <p>Discover amazing cooking videos from YouTube 🎬</p>
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} style={{ maxWidth: 500, marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <form
+        onSubmit={handleSearch}
+        style={{ maxWidth: 500, marginBottom: "2rem" }}
+      >
+        <div style={{ display: "flex", gap: "8px" }}>
           <input
             type="text"
             className="form-input"
             placeholder="Search food videos..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             style={{ flex: 1 }}
           />
           <button type="submit" className="nav-btn-primary">
@@ -60,9 +71,27 @@ export default function YouTubeVideos() {
       </form>
 
       {/* Quick Tags */}
-      <div className="category-filters" style={{ marginBottom: '2rem' }}>
-        {['Biryani', 'Pasta', 'Pizza', 'Cake', 'Dosa', 'Sushi', 'Burger', 'Curry', 'Ramen', 'Tacos'].map(tag => (
-          <button key={tag} className="category-chip" onClick={() => { setSearch(tag); fetchVideos(tag); }}>
+      <div className="category-filters" style={{ marginBottom: "2rem" }}>
+        {[
+          "Biryani",
+          "Pasta",
+          "Pizza",
+          "Cake",
+          "Dosa",
+          "Sushi",
+          "Burger",
+          "Curry",
+          "Ramen",
+          "Tacos",
+        ].map((tag) => (
+          <button
+            key={tag}
+            className="category-chip"
+            onClick={() => {
+              setSearch(tag);
+              fetchVideos(tag);
+            }}
+          >
             🍴 {tag}
           </button>
         ))}
@@ -70,21 +99,44 @@ export default function YouTubeVideos() {
 
       {/* Video Player */}
       {selectedVideo && (
-        <div id="yt-player-container-page" className="recipe-section" style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2><span className="sticker">▶️</span> Now Playing</h2>
-            <button className="btn-icon" onClick={() => setSelectedVideo(null)}>✕</button>
+        <div
+          id="yt-player-container-page"
+          className="recipe-section"
+          style={{ marginBottom: "2rem" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <h2>
+              <span className="sticker">▶️</span> Now Playing
+            </h2>
+            <button className="btn-icon" onClick={() => setSelectedVideo(null)}>
+              ✕
+            </button>
           </div>
           <iframe
             className="recipe-video-embed"
-            src={`https://www.youtube.com/embed/${typeof selectedVideo.id === 'string' ? selectedVideo.id : selectedVideo.id?.videoId}?rel=0&origin=${window.location.origin}`}
+            src={`https://www.youtube.com/embed/${typeof selectedVideo.id === "string" ? selectedVideo.id : selectedVideo.id?.videoId}?rel=0&origin=${window.location.origin}`}
             title={selectedVideo.snippet?.title}
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           />
-          <h3 style={{ marginTop: '1rem', fontSize: '1.1rem' }}>{selectedVideo.snippet?.title}</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
-            {selectedVideo.snippet?.channelTitle} • {selectedVideo.snippet?.description?.slice(0, 150)}...
+          <h3 style={{ marginTop: "1rem", fontSize: "1.1rem" }}>
+            {selectedVideo.snippet?.title}
+          </h3>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              fontSize: "0.85rem",
+              marginTop: "4px",
+            }}
+          >
+            {selectedVideo.snippet?.channelTitle} •{" "}
+            {selectedVideo.snippet?.description?.slice(0, 150)}...
           </p>
         </div>
       )}
@@ -104,7 +156,10 @@ export default function YouTubeVideos() {
               onClick={() => handleVideoClick(video)}
             >
               <img
-                src={video.snippet?.thumbnails?.high?.url || video.snippet?.thumbnails?.default?.url}
+                src={
+                  video.snippet?.thumbnails?.high?.url ||
+                  video.snippet?.thumbnails?.default?.url
+                }
                 alt={video.snippet?.title}
               />
               <div className="youtube-card-body">
@@ -118,11 +173,13 @@ export default function YouTubeVideos() {
 
       {videos?.length === 0 && !loading && (
         <div className="empty-state">
-          <div className="sticker" style={{ fontSize: '4rem' }}>📺</div>
+          <div className="sticker" style={{ fontSize: "4rem" }}>
+            📺
+          </div>
           <h3>No videos found</h3>
           <p>Try a different search term</p>
         </div>
       )}
     </div>
-  )
+  );
 }
